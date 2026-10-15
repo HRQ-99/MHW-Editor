@@ -43,11 +43,15 @@ namespace MHW_Generator {
 
         public static void WriteResult(string dir, string className, dynamic template, string ext = "cs") {
             template.Initialize();
-            if (!Directory.Exists(dir)) {
-                Directory.CreateDirectory(dir);
-            }
+            var outputDirectory = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory,
+                                                                 dir.Replace('\\', Path.DirectorySeparatorChar)));
+            Directory.CreateDirectory(outputDirectory);
 
-            File.WriteAllText($"{dir}\\{className}.{ext}", (string) template.TransformText());
+            var outputFile = Path.Combine(outputDirectory, $"{className}.{ext}");
+            // Use a deterministic newline convention across runtimes. Git normalizes text files in this repository.
+            var output = ((string) template.TransformText()).Replace("\r\n", "\n");
+
+            File.WriteAllText(outputFile, output);
         }
     }
 }
